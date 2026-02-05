@@ -1,29 +1,31 @@
 @import "tailwindcss";
 
-:root {
-  --primary: 21 128 61;
-  --primary-dark: 20 83 45;
+@layer base {
+  :root {
+    --primary: 21 128 61;
+    --primary-dark: 20 83 45;
 
-  --secondary: 202 138 4;
+    --secondary: 202 138 4;
 
-  --background: 252 248 242;
-  --background-card: 255 255 255;
-  --background-muted: 244 238 229;
+    --background: 252 248 242;
+    --background-card: 255 255 255;
+    --background-muted: 244 238 229;
 
-  --text-primary: 41 37 36;
-  --text-secondary: 87 83 78;
-  --text-muted: 120 113 108;
+    --text-primary: 41 37 36;
+    --text-secondary: 87 83 78;
+    --text-muted: 120 113 108;
 
-  --border: 231 229 228;
-  --border-muted: 214 211 209;
+    --border: 231 229 228;
+    --border-muted: 214 211 209;
 
-  --success: 22 163 74;
-  --warning: 202 138 4;
-  --error: 220 38 38;
-  --info: 21 128 61;
+    --success: 22 163 74;
+    --warning: 202 138 4;
+    --error: 220 38 38;
+    --info: 21 128 61;
+  }
 }
 
-@theme inline {
+@theme {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
@@ -46,6 +48,14 @@
   --color-warning: rgb(var(--warning));
   --color-error: rgb(var(--error));
   --color-info: rgb(var(--info));
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    font-family: Arial, Helvetica, sans-serif;
+  }
 }
 
 @layer components {
@@ -111,8 +121,3 @@
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
