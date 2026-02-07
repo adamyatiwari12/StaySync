@@ -1,4 +1,4 @@
-import Logo from "@/assets/Logo.jpg";
+import Logo from "@/assets/Logo.png";
 import { Phone, MessageSquare } from "lucide-react";
 import Image from "next/image";
 
@@ -11,7 +11,7 @@ const Footer = () => {
           {/* Company Info */}
           <div className="space-y-4 font-semibold">
             <div className="flex items-center space-x-3">
-              <Image src={Logo.src} alt="StaySync logo" className="w-6" />
+              <Image src={Logo} alt="StaySync logo" className="w-6" />
               <p className="text-xl font-semibold">StaySync</p>
             </div>
 
