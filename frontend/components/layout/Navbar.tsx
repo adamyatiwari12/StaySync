@@ -32,7 +32,7 @@ const Navbar = ({navLinks}: NavbarProps) => {
             className="flex items-center gap-2 cursor-pointer"
             onClick={() => handleNavigation("/")}
           >
-            <Image src={Logo.src} alt="StaySync" className="w-7" />
+            <Image src={Logo} alt="StaySync" className="w-7" />
             <span className="text-xl font-bold text-text-primary">
               StaySync
             </span>
