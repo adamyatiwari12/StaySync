@@ -7,7 +7,9 @@ import Newsletter from "@/components/home/Newsletter";
 import Services from "@/components/home/Services";
 import Footer from "@/components/layout/Footer";
 import Navbar from "@/components/layout/Navbar";
-import { navLinks } from "@/components/nav/navLinks";
+import { navLinks } from "@/components/data/navLinks";
+import { testimonialData } from "@/components/data/testimonials";
+import Testimonial from "@/components/home/Testimonials";
 
 const HomePage = () => {
   return (
@@ -17,6 +19,7 @@ const HomePage = () => {
       <Services />
       <Banner />
       <Banner2 />
+      <Testimonial testimonialData={testimonialData} />
       <Newsletter />
       <Footer/>
     </div>
