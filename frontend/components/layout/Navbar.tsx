@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Logo from "@/assets/Logo.png";
-import type { NavLink } from "../nav/navLinks";
+import type { NavLink } from "../data/navLinks";
 import Image from "next/image";
 import {
   Menu,
