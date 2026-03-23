@@ -2,6 +2,12 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
+    stayId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Stay",
+      required: true
+    },
+
     username: {
       type: String,
       required: true,
@@ -12,8 +18,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      lowercase: true,
-      unique: true
+      lowercase: true
     },
 
     password: {
@@ -37,5 +42,7 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+userSchema.index({ email: 1, stayId: 1 }, { unique: true });
 
 module.exports = mongoose.model("User", userSchema);

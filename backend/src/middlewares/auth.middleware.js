@@ -16,9 +16,14 @@ const protect = (req, res, next) => {
       return res.status(401).json({ message: "Invalid token payload" });
     }
 
+    if (decoded.role !== "super_admin" && !decoded.stayId) {
+      return res.status(401).json({ message: "Invalid token payload" });
+    }
+
     req.user = {
       userId: decoded.userId,
-      role: decoded.role
+      role: decoded.role,
+      stayId: decoded.stayId || null
     };
 
     next();

@@ -12,6 +12,7 @@ interface FormErrors {
   username?: string;
   email?: string;
   password?: string;
+  code?: string;
 }
 
 const SignupPage: FC = () => {
@@ -20,8 +21,8 @@ const SignupPage: FC = () => {
     username: "",
     email: "",
     password: "",
+    code: "697851963138d44d07fa81f1",
   });
-
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -30,9 +31,9 @@ const SignupPage: FC = () => {
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
-    if (!form.username.trim()) {
-      newErrors.username = "Username is required";
-    }
+    if (!form.code.trim()) newErrors.code = "Stay ID is required";
+
+    if (!form.username.trim()) newErrors.username = "Username is required";
 
     if (!form.email.trim()) {
       newErrors.email = "Email is required";
@@ -53,7 +54,6 @@ const SignupPage: FC = () => {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
-
     if (errors[name as keyof FormErrors]) {
       setErrors({ ...errors, [name]: undefined });
     }
@@ -68,15 +68,8 @@ const SignupPage: FC = () => {
     try {
       setLoading(true);
       const res = await signup(form);
-
       localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-
-      router.push(
-        res.data.user.role === "admin"
-          ? "/admin/dashboard"
-          : "/tenant/dashboard"
-      );
+      router.push("/tenant/dashboard");
     } catch (error: unknown) {
       setApiError(getErrorMessage(error));
     } finally {
@@ -101,7 +94,26 @@ const SignupPage: FC = () => {
 
           <form onSubmit={handleSubmit} className="space-y-5">
 
-            {/* Username */}
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                PG Code
+              </label>
+              <input
+                type="text"
+                name="code"
+                value={form.code}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 rounded-lg border ${
+                  errors.code ? "border-error" : "border-border"
+                } bg-background-muted`}
+              />
+              {errors.code && (
+                <p className="mt-1 text-sm text-error">
+                  {errors.code}
+                </p>
+              )}
+            </div>
+
             <div>
               <label className="block text-sm font-medium mb-2">
                 Username
@@ -125,7 +137,6 @@ const SignupPage: FC = () => {
               )}
             </div>
 
-            {/* Email */}
             <div>
               <label className="block text-sm font-medium mb-2">
                 Email Address
@@ -149,7 +160,6 @@ const SignupPage: FC = () => {
               )}
             </div>
 
-            {/* Password */}
             <div>
               <label className="block text-sm font-medium mb-2">
                 Password
@@ -185,7 +195,7 @@ const SignupPage: FC = () => {
               disabled={loading}
               className="w-full bg-primary disabled:opacity-50 font-semibold py-2 rounded-lg"
             >
-              {loading ? "Creating Account..." : "Sign Up"}
+              Sign Up
             </button>
           </form>
 
@@ -201,6 +211,12 @@ const SignupPage: FC = () => {
             </p>
           </div>
 
+          <div className="mt-8 pt-6 border-t border-border text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/5 text-primary text-xs font-medium border border-primary/10">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              Backend: Render Free Tier (may take a few seconds to wake up)
+            </div>
+          </div>
         </div>
       </div>
     </div>

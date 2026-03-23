@@ -11,6 +11,7 @@ import { getErrorMessage } from "@/lib/getErrorMessage";
 interface FormErrors {
   email?: string;
   password?: string;
+  code?: string;
 }
 
 const SigninPage: FC = () => {
@@ -18,8 +19,8 @@ const SigninPage: FC = () => {
   const [form, setForm] = useState<LoginData>({
     email: "",
     password: "",
+    code: "",
   });
-
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -27,6 +28,10 @@ const SigninPage: FC = () => {
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
+
+    if (!form.code.trim()) {
+      newErrors.code = "Stay ID is required";
+    }
 
     if (!form.email.trim()) {
       newErrors.email = "Email is required";
@@ -45,10 +50,19 @@ const SigninPage: FC = () => {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
-
     if (errors[name as keyof FormErrors]) {
       setErrors({ ...errors, [name]: undefined });
     }
+  };
+
+  const handleDemoLogin = (role: "admin" | "tenant") => {
+    const demoData = role === "admin" 
+      ? { email: "admin@gmail.com", password: "admin123", code: "DEL01" }
+      : { email: "tenant@gmail.com", password: "tenant123", code: "DEL01" };
+    
+    setForm(demoData);
+    setErrors({});
+    setApiError("");
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -60,7 +74,6 @@ const SigninPage: FC = () => {
     try {
       setLoading(true);
       const res = await signin(form);
-
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
@@ -92,7 +105,27 @@ const SigninPage: FC = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email */}
+
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                PG Code
+              </label>
+              <input
+                type="text"
+                name="code"
+                value={form.code}
+                onChange={handleChange}
+                className={`w-full px-4 py-2 rounded-lg border ${
+                  errors.code ? "border-error" : "border-border"
+                } bg-background-muted`}
+              />
+              {errors.code && (
+                <p className="mt-2 text-sm text-error">
+                  {errors.code}
+                </p>
+              )}
+            </div>
+
             <div>
               <label className="block text-sm font-medium mb-2">
                 Email Address
@@ -114,7 +147,6 @@ const SigninPage: FC = () => {
               )}
             </div>
 
-            {/* Password */}
             <div>
               <label className="block text-sm font-medium mb-2">
                 Password
@@ -143,13 +175,29 @@ const SigninPage: FC = () => {
               )}
             </div>
 
-            {/* Submit */}
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                type="button"
+                onClick={() => handleDemoLogin("admin")}
+                className="py-2 px-4 rounded-lg border border-primary/30 text-primary text-sm font-medium hover:bg-primary/5 transition-colors"
+              >
+                Demo Admin
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDemoLogin("tenant")}
+                className="py-2 px-4 rounded-lg border border-primary/30 text-primary text-sm font-medium hover:bg-primary/5 transition-colors"
+              >
+                Demo Tenant
+              </button>
+            </div>
+
             <button
               type="submit"
               disabled={loading}
               className="w-full py-2 rounded-lg bg-primary font-semibold"
             >
-              {loading ? "Logging in..." : "Login"}
+              Login
             </button>
           </form>
 
@@ -165,6 +213,12 @@ const SigninPage: FC = () => {
             </p>
           </div>
 
+          <div className="mt-8 pt-6 border-t border-border text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/5 text-primary text-xs font-medium border border-primary/10">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              Backend: Render Free Tier (may take a few seconds to wake up)
+            </div>
+          </div>
         </div>
       </div>
     </div>

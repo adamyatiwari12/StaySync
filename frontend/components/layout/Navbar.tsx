@@ -1,10 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Logo from "@/assets/Logo.png";
 import type { NavLink } from "../data/navLinks";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Menu,
   X,
@@ -17,11 +18,23 @@ interface NavbarProps {
 const Navbar = ({navLinks}: NavbarProps) => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+  }, []);
 
   const handleNavigation = (href: string) => {
     router.push(href);
     setIsOpen(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setIsLoggedIn(false);
+    router.push("/");
   };
 
   return (
@@ -66,6 +79,23 @@ const Navbar = ({navLinks}: NavbarProps) => {
               {isOpen ? <X size={26} /> : <Menu size={26} />}
             </button>
           </div>
+
+           <div className="flex gap-2">
+            {isLoggedIn ? (
+              <button onClick={handleLogout} className="secondary-btn">
+                Logout
+              </button>
+            ) : (
+              <>
+                <Link href="/signup">
+                  <button className="primary-btn">Try For Free</button>
+                </Link>
+                <Link href="/signin">
+                  <button className="secondary-btn">Login</button>
+                </Link>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Mobile Navigation */}
@@ -89,7 +119,7 @@ const Navbar = ({navLinks}: NavbarProps) => {
               })}
             </div>
           </div>
-        )}
+        )}    
       </div>
     </nav>
   );

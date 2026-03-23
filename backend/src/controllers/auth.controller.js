@@ -1,18 +1,28 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
+const Stay = require("../models/Stay");
 const generateToken = require("../utils/generateToken");
 
 const signUp = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, code } = req.body;
 
-    if (!username || !email || !password) {
+    if (!username || !email || !password || !code) {
       return res.status(400).json({ message: "All required fields missing" });
     }
 
-    const existingUser = await User.findOne({ email });
+    const stay = await Stay.findOne({ code });
+    if (!stay) {
+      return res.status(404).json({ message: "Invalid PG code" });
+    }
+
+    const existingUser = await User.findOne({
+      email,
+      stayId: stay._id
+    });
+
     if (existingUser) {
-      return res.status(409).json({ message: "User already exists" });
+      return res.status(409).json({ message: "User already exists in this PG" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -21,39 +31,53 @@ const signUp = async (req, res) => {
       username,
       email,
       password: hashedPassword,
-      role: "tenant"
+      role: "tenant",
+      stayId: stay._id
     });
 
     const token = generateToken({
       userId: user._id,
-      role: user.role
+      role: user.role,
+      stayId: user.stayId
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       message: "User registered successfully",
       token,
       user: {
         id: user._id,
         username: user.username,
         email: user.email,
-        role: user.role
+        role: user.role,
+        stayId: user.stayId
       }
     });
+
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Server error" });
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
+
 const signIn = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, code } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ message: "Email and password required" });
+    if (!email || !password || !code) {
+      return res.status(400).json({ message: "Email, password and PG code required" });
     }
 
-    const user = await User.findOne({ email });
+    const stay = await Stay.findOne({ code });
+    if (!stay) {
+      return res.status(404).json({ message: "Invalid PG code" });
+    }
+
+    const user = await User.findOne({
+      email,
+      stayId: stay._id
+    });
+
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
@@ -65,21 +89,25 @@ const signIn = async (req, res) => {
 
     const token = generateToken({
       userId: user._id,
-      role: user.role
+      role: user.role,
+      stayId: user.stayId
     });
 
-    res.json({
+    return res.json({
       message: "Login successful",
       token,
       user: {
         id: user._id,
         username: user.username,
         email: user.email,
-        role: user.role
+        role: user.role,
+        stayId: user.stayId
       }
     });
+
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
