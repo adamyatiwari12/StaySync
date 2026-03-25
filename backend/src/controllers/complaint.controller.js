@@ -45,6 +45,7 @@ const updateComplaintStatus = async (req, res) => {
   }
 };
 
+
 const createComplaint = async (req, res) => {
   try {
     const { category, description } = req.body;

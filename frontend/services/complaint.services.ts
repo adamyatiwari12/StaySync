@@ -3,7 +3,7 @@ import { Complaint, CreateComplaintData } from "@/types/complaint";
 import { AxiosResponse } from "axios";
 
 export const getComplaints = (): Promise<AxiosResponse<Complaint[]>> => {
-    return API.get("/complaints")
+    return API.get("/complaints");
 }
 
 export const updateComplaintStatus = (id: string, status: Complaint["status"]) => {
