@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import ProtectedRoute from "@/components/home/ProtectedRoute";
 import Navbar from "@/components/layout/Navbar";
-import { navLinks } from "@/components/data/navLinks";
 import {
   getMyComplaints,
   createComplaint,
@@ -135,7 +134,7 @@ export default function MyComplaintsPage() {
   return (
     <ProtectedRoute allowedRoles={["tenant"]}>
       <div className="min-h-screen bg-background">
-        <Navbar navLinks={navLinks.tenant} />
+        <Navbar role="tenant" />
 
         <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
           {/* Header */}

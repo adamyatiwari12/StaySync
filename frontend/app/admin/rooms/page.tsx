@@ -13,7 +13,6 @@ import {
   Loader2,
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
-import { navLinks } from "@/components/data/navLinks";
 
 export default function AdminRoomsPage() {
 
@@ -119,7 +118,7 @@ export default function AdminRoomsPage() {
     <ProtectedRoute allowedRoles={["admin"]}>
       <div className="min-h-screen bg-background">
 
-        <Navbar navLinks={navLinks.admin} />
+        <Navbar role="admin" />
 
         {/* HEADER SECTION (CENTERED) */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

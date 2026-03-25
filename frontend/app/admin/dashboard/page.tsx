@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
-import { navLinks } from "@/components/data/navLinks";
 
 const AdminDashboard = () => {
   const router = useRouter();
@@ -24,7 +23,7 @@ const AdminDashboard = () => {
     }
   }, [router]);
 
-  return <Navbar navLinks={navLinks.admin} />
+  return <Navbar role="admin" />
 }
 
 export default AdminDashboard

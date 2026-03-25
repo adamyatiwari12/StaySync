@@ -10,7 +10,6 @@ import { Tenant } from "@/types/user";
 import { AxiosError } from "axios";
 import { ArrowLeft, CheckCircle, AlertCircle, Loader2, UserPlus } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
-import { navLinks } from "@/components/data/navLinks";
 
 function AssignTenantContent() {
   const router = useRouter();
@@ -223,7 +222,7 @@ export default function AssignTenantPage() {
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
       <div className="min-h-screen bg-background">
-        <Navbar navLinks={navLinks.admin} />
+        <Navbar role="admin" />
         <Suspense fallback={<div className="flex justify-center p-10"><Loader2 className="animate-spin text-primary" /></div>}>
           <AssignTenantContent />
         </Suspense>

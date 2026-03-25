@@ -18,7 +18,6 @@ import {
   Loader2,
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
-import { navLinks } from "@/components/data/navLinks";
 
 export default function AdminComplaintsPage() {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
@@ -125,7 +124,7 @@ export default function AdminComplaintsPage() {
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
       <div className="min-h-screen bg-background">
-        <Navbar navLinks={navLinks.admin} />
+        <Navbar role="admin" />
 
         <div className="max-w-7xl mx-auto space-y-6 p-6 sm:p-8">
 

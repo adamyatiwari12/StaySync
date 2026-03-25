@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Logo from "@/assets/Logo.png";
-import type { NavLink } from "../data/navLinks";
+import { navLinks } from "@/components/data/navLinks";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -11,11 +11,13 @@ import {
   X,
 } from "lucide-react";
 
+type NavbarRole = "admin" | "tenant" | "landing";
+
 interface NavbarProps {
-  navLinks: NavLink[];
+  role: NavbarRole;
 }
 
-const Navbar = ({navLinks}: NavbarProps) => {
+const Navbar = ({ role }: NavbarProps) => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -37,6 +39,8 @@ const Navbar = ({navLinks}: NavbarProps) => {
     router.push("/");
   };
 
+  const links = navLinks[role] || [];
+
   return (
     <nav className="sticky top-0 z-50 bg-background border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -52,7 +56,7 @@ const Navbar = ({navLinks}: NavbarProps) => {
           </div>
 
           <div className="hidden md:flex items-center gap-2">
-            {navLinks.map((link) => {
+            {links.map((link) => {
               const Icon = link.icon;
               return (
                 <button
@@ -102,7 +106,7 @@ const Navbar = ({navLinks}: NavbarProps) => {
         {isOpen && (
           <div className="md:hidden border-t border-border">
             <div className="py-4 space-y-2">
-              {navLinks.map((link) => {
+              {links.map((link) => {
                 const Icon = link.icon;
                 return (
                   <button

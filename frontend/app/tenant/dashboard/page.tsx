@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
-import { navLinks } from "@/components/data/navLinks";
 
 const TenantDashboard = () => {
   const router = useRouter();
@@ -24,7 +23,7 @@ const TenantDashboard = () => {
     }
   }, [router]);
 
-  return <Navbar navLinks={navLinks.tenant} />
+  return <Navbar role="tenant" />
 }
 
 export default TenantDashboard 
