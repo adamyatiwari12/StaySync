@@ -1,29 +1,135 @@
 "use client";
 
-import { useEffect } from "react";
+import ProtectedRoute from "@/components/home/ProtectedRoute";
+import { useEffect, useState } from "react";
+import { getRooms } from "@/services/room.services";
+import { getComplaints } from "@/services/complaint.services";
+import { Building, Users, AlertCircle, TrendingUp, Plus, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 
-const AdminDashboard = () => {
+export default function AdminDashboard() {
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalRooms: 0,
+    availableRooms: 0,
+    totalCapacity: 0,
+    occupiedCount: 0,
+    occupancyRate: 0,
+    pendingIssues: 0,
+  });
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const user = localStorage.getItem("user");
+    const fetchStats = async () => {
+      try {
+        const { data } = await getRooms();
 
-    if (!token || !user) {
-      router.push("/signin");
-      return;
-    }
+        const totalRooms = data.length;
+        const availableRooms = data.filter((r) => r.isAvailable).length;
+        const totalCapacity = data.reduce((acc, r) => acc + r.capacity, 0);
+        const occupiedCount = data.reduce((acc, r) => acc + r.occupiedCount, 0);
+        const occupancyRate =
+          totalCapacity > 0
+            ? Math.round((occupiedCount / totalCapacity) * 100)
+            : 0;
 
-    const parsedUser = JSON.parse(user);
-    if (parsedUser.role !== "admin") {
-      router.push("/signin");
-      return;
-    }
-  }, [router]);
+        const { data: complaintsData } = await getComplaints();
+        const pendingIssues = complaintsData.filter(
+          (c) => c.status === "open" || c.status === "in_progress"
+        ).length;
 
-  return <Navbar role="admin" />
+        setStats({
+          totalRooms,
+          availableRooms,
+          totalCapacity,
+          occupiedCount,
+          occupancyRate,
+          pendingIssues,
+        });
+      } catch (error) {
+        console.error("Failed to fetch dashboard stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  const StatCard = ({ title, value, icon: Icon, accent, subValue }: any) => (
+    <div className="bg-background-card rounded-xl p-6 border border-border hover:border-primary/50 transition">
+      <div className="flex justify-between items-start">
+        <div>
+          <p className="text-sm font-medium text-text-secondary">{title}</p>
+          <h3 className="text-2xl font-bold mt-1">{value}</h3>
+          {subValue && (
+            <p className="text-xs text-text-muted mt-1">{subValue}</p>
+          )}
+        </div>
+        <div className={`p-3 rounded-lg bg-${accent}/10`}>
+          <Icon size={24} className={`text-${accent}`} />
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <ProtectedRoute allowedRoles={["admin"]}>
+      <div className="min-h-screen bg-background">
+        <Navbar role="admin" />
+
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold">Dashboard Overview</h1>
+            <p className="text-text-secondary mt-1">
+              Welcome back, here’s what’s happening today.
+            </p>
+          </div>
+
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-2 border-border border-t-primary" />
+            </div>
+          ) : (
+            <>
+              {/* Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <StatCard
+                  title="Total Rooms"
+                  value={stats.totalRooms}
+                  subValue={`${stats.availableRooms} Available`}
+                  icon={Building}
+                  accent="primary"
+                />
+                <StatCard
+                  title="Total Residents"
+                  value={stats.occupiedCount}
+                  subValue="Active Residents"
+                  icon={Users}
+                  accent="secondary"
+                />
+                <StatCard
+                  title="Occupancy Rate"
+                  value={`${stats.occupancyRate}%`}
+                  subValue="Of total capacity"
+                  icon={TrendingUp}
+                  accent="success"
+                />
+                <StatCard
+                  title="Pending Issues"
+                  value={stats.pendingIssues}
+                  subValue="Needs attention"
+                  icon={AlertCircle}
+                  accent="error"
+                />
+              </div>
+
+            </>
+          )}
+        </main>
+      </div>
+    </ProtectedRoute>
+  );
 }
-
-export default AdminDashboard
