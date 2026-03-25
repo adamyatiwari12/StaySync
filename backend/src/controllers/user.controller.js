@@ -3,13 +3,11 @@ const User = require("../models/User");
 const getTenants = async (req, res) => {
   try {
     const tenants = await User.find({
-      role: "tenant",
-      stayId: req.user.stayId
-    })
-      .select("_id username email roomId")
-      .populate("roomId", "roomNumber");
+      stayId: req.user.stayId,
+      role: "tenant"
+    }).select("-password");
 
-    res.json(tenants);
+    res.status(200).json(tenants);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
@@ -17,28 +15,28 @@ const getTenants = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   try {
-    const { name, email } = req.body;
+    const { name, email, phone } = req.body;
 
-    const user = await User.findOne({
-      _id: req.user.userId,
-      stayId: req.user.stayId
-    });
+    const user = await User.findById(req.user._id);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    if (name) user.username = name;
-    if (email) user.email = email;
+    user.name = name || user.name;
+    user.email = email || user.email;
+    user.phone = phone || user.phone;
 
     await user.save();
 
-    res.json({
+    res.status(200).json({
       message: "Profile updated successfully",
       user: {
         _id: user._id,
-        name: user.username,
+        username: user.username,
         email: user.email,
+        name: user.name,
+        phone: user.phone,
         role: user.role
       }
     });
@@ -49,25 +47,13 @@ const updateProfile = async (req, res) => {
 
 const getProfile = async (req, res) => {
   try {
-    const user = await User.findOne({
-      _id: req.user.userId,
-      stayId: req.user.stayId
-    }).populate(
-      "roomId",
-      "roomNumber floor rentAmount capacity occupiedCount"
-    );
+    const user = await User.findById(req.user._id).select("-password");
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.json({
-      _id: user._id,
-      name: user.username,
-      email: user.email,
-      role: user.role,
-      room: user.roomId || null
-    });
+    res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: "Server error" });
   }

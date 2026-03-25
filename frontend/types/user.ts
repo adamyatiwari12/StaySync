@@ -3,6 +3,7 @@ export interface Tenant {
     username: string;
     email: string;
     name?: string;
+    phone?: string;
     roomId?: string | null;
     role: "tenant" | "admin";
 }
@@ -10,4 +11,5 @@ export interface Tenant {
 export interface UpdateProfileData {
     name: string;
     email: string;
+    phone?: string;
 }
