@@ -1,4 +1,6 @@
 const Payment = require("../models/Payment");
+const razorpay = require("../config/razorpay");
+const crypto = require("crypto");
 
 const createPayment = async (req, res) => {
   try {
@@ -50,15 +52,10 @@ const markPaymentAsPaid = async (req, res) => {
   const payment = await Payment.findOne({
     _id: req.params.id,
     stayId: req.user.stayId,
-    tenantId: req.user.userId,
   });
 
   if (!payment) {
     return res.status(404).json({ message: "Payment not found" });
-  }
-
-  if (payment.status === "paid") {
-    return res.json({ message: "Already paid" });
   }
 
   payment.status = "paid";
@@ -66,7 +63,6 @@ const markPaymentAsPaid = async (req, res) => {
   payment.paymentMethod = "manual";
 
   await payment.save();
-
   res.json(payment);
 };
 
@@ -83,10 +79,45 @@ const deletePayment = async (req, res) => {
   res.json({ message: "Payment deleted" });
 };
 
+  const createRazorpayOrder = async (req, res) => {
+  try {
+    const payment = await Payment.findOne({
+      _id: req.params.id,
+      stayId: req.user.stayId,
+      status: "pending",
+    });
+
+    if (!payment) {
+      return res.status(404).json({ message: "Payment not found" });
+    }
+
+    const order = await razorpay.orders.create({
+      amount: payment.amount * 100,
+      currency: "INR",
+      receipt: `receipt_${payment._id}`,
+    });
+
+    payment.razorpayOrderId = order.id;
+    await payment.save();
+
+    res.json({
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      key: process.env.RAZORPAY_KEY_ID,
+    });
+  } catch (error) {
+    console.error("Razorpay Order Error:", error);
+    res.status(500).json({ message: "Failed to create order" });
+  }
+};
+
+
 module.exports = {
   createPayment,
   getMyPayments,
   getAllPayments,
   markPaymentAsPaid,
   deletePayment,
+  createRazorpayOrder,
 };

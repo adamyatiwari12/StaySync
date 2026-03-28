@@ -8,14 +8,16 @@ const {
   getMyPayments,
   getAllPayments,
   deletePayment,
+  createRazorpayOrder,
 } = require("../controllers/payment.controller");
 
-router.get("/me", protect, getMyPayments);
-
 router.post("/", protect, createPayment);
+router.patch("/:id/pay", protect, markPaymentAsPaid);
 router.get("/", protect, getAllPayments);
 router.delete("/:id", protect, deletePayment);
 
-router.patch("/:id/pay", protect, markPaymentAsPaid);
+router.get("/me", protect, getMyPayments);
+
+router.post("/:id/razorpay/order", protect, createRazorpayOrder);
 
 module.exports = router;
