@@ -6,7 +6,7 @@ import API from "@/lib/axios";
 import { getMyPayments } from "@/services/payment.services";
 import { Payment } from "@/types/payment";
 import ProtectedRoute from "@/components/home/ProtectedRoute";
-import TenantNavbar from "@/components/layout/TenantNavbar";
+import Navbar from "@/components/layout/Navbar";
 import {
   CreditCard,
   Loader2,
@@ -111,7 +111,7 @@ export default function TenantPaymentsPage() {
   return (
     <ProtectedRoute allowedRoles={["tenant"]}>
       <div className="min-h-screen bg-background">
-        <TenantNavbar />
+        <Navbar role="tenant" />
         <Script src="https://checkout.razorpay.com/v1/checkout.js" />
 
         <main className="max-w-7xl mx-auto p-6 space-y-8">
