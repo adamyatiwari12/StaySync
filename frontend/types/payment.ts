@@ -1,11 +1,5 @@
 export type PaymentStatus = "pending" | "paid";
 
-export type PaymentMethod =
-  | "cash"
-  | "upi"
-  | "bank_transfer"
-  | "manual";
-
 export interface Payment {
   _id: string;
   amount: number;
@@ -13,7 +7,6 @@ export interface Payment {
   year: number;
   status: PaymentStatus;
   paidAt?: string;
-  paymentMethod?: PaymentMethod;
 
   tenantId: {
     _id: string;
