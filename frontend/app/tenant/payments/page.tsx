@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Script from "next/script";
 import API from "@/lib/axios";
 import { getMyPayments } from "@/services/payment.services";
 import { Payment } from "@/types/payment";
@@ -50,53 +49,27 @@ export default function TenantPaymentsPage() {
       : "bg-warning/10 text-warning border-warning/30";
 
   const handlePay = async () => {
-    if (!selectedPayment) return;
+  if (!selectedPayment) return;
 
-    try {
-      const { data } = await API.post(
-        `/payments/${selectedPayment._id}/razorpay/order`
-      );
+  try {
+    await API.patch(`/payments/${selectedPayment._id}/pay`);
 
-      const rzp = new (window as any).Razorpay({
-        key: data.key,
-        amount: data.amount,
-        currency: data.currency,
-        name: "StaySync",
-        description: "Monthly Rent",
-        order_id: data.orderId,
-        theme: { color: "#6366f1" },
+    alert("Payment successful ✅");
 
-        handler: async (response: any) => {
-          try {
-            await API.post("/payments/razorpay/verify", {
-              paymentId: selectedPayment._id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_signature: response.razorpay_signature,
-            });
+    setPayments((prev) =>
+      prev.map((p) =>
+        p._id === selectedPayment._id
+          ? { ...p, status: "paid", paidAt: new Date().toISOString() }
+          : p
+      )
+    );
 
-            alert("Payment successful 🎉");
-            setSelectedPayment(null);
-            router.push("/tenant/dashboard");
-          } catch (error) {
-            console.error("Verification failed", error);
-            alert("Payment verification failed, please contact support");
-          }
-        },
-
-        modal: {
-          ondismiss: () => {
-            setSelectedPayment(null);
-          },
-        },
-      });
-
-      rzp.open();
-    } catch (err) {
-      console.error(err);
-      alert("Failed to initiate payment");
-    }
-  };
+    setSelectedPayment(null);
+  } catch (error) {
+    console.error("Payment failed", error);
+    alert("Failed to process payment");
+  }
+};
 
   if (loading) {
     return (
@@ -112,7 +85,6 @@ export default function TenantPaymentsPage() {
     <ProtectedRoute allowedRoles={["tenant"]}>
       <div className="min-h-screen bg-background">
         <Navbar role="tenant" />
-        <Script src="https://checkout.razorpay.com/v1/checkout.js" />
 
         <main className="max-w-7xl mx-auto p-6 space-y-8">
 
@@ -186,7 +158,7 @@ export default function TenantPaymentsPage() {
                               onClick={() => setSelectedPayment(p)}
                               className="bg-primary text-white px-4 py-2 rounded-lg text-xs hover:bg-primary/90 transition"
                             >
-                              Pay Now
+                                Pay Now
                             </button>
                           ) : (
                             <span className="text-text-muted text-xs">
@@ -235,7 +207,7 @@ export default function TenantPaymentsPage() {
                   onClick={handlePay}
                   className="w-full bg-primary text-white py-3 rounded-xl hover:bg-primary/90 transition"
                 >
-                  Pay with Razorpay
+                  Mark as Paid
                 </button>
 
                 <button
