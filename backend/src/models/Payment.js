@@ -6,52 +6,52 @@ const paymentSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Stay",
       required: true,
-      index: true,
+      index: true
     },
 
     tenantId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: true
     },
 
     roomId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Room",
-      required: true,
+      required: true
     },
 
     amount: {
       type: Number,
-      required: true,
+      required: true
     },
 
     month: {
-      type: Number,
-      required: true,
+      type: Number, // 1–12
+      required: true
     },
 
     year: {
       type: Number,
-      required: true,
+      required: true
     },
 
     status: {
       type: String,
       enum: ["pending", "paid"],
-      default: "pending",
+      default: "pending"
     },
 
     paidAt: {
       type: Date,
-      default: null,
+      default: null
     },
 
     paymentMethod: {
       type: String,
-      enum: ["cash", "upi", "bank_transfer", "manual"],
-      default: "manual",
-    },
+      enum: ["cash", "upi", "bank_transfer", "razorpay", "manual"],
+      default: "cash"
+    }
   },
   { timestamps: true }
 );
