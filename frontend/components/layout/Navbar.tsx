@@ -6,10 +6,7 @@ import Logo from "@/assets/Logo.png";
 import { navLinks } from "@/components/data/navLinks";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Menu,
-  X,
-} from "lucide-react";
+import { Menu, X } from "lucide-react";
 
 type NavbarRole = "admin" | "tenant" | "landing";
 
@@ -32,19 +29,14 @@ const Navbar = ({ role }: NavbarProps) => {
     setIsOpen(false);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setIsLoggedIn(false);
-    router.push("/");
-  };
-
   const links = navLinks[role] || [];
 
   return (
     <nav className="sticky top-0 z-50 bg-background border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
         <div className="flex justify-between items-center h-16">
+
           <div
             className="flex items-center gap-2 cursor-pointer"
             onClick={() => handleNavigation("/")}
@@ -55,64 +47,15 @@ const Navbar = ({ role }: NavbarProps) => {
             </span>
           </div>
 
-          <div className="hidden md:flex items-center gap-2">
-            {links.map((link) => {
-              const Icon = link.icon;
-              return (
-                <button
-                  key={link.href}
-                  onClick={() => handleNavigation(link.href)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg
-                             text-text-secondary hover:text-text-primary
-                             hover:bg-background-muted transition"
-                >
-                  <Icon size={18} />
-                  {link.label}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Mobile Menu Button */}
-          <div className="md:hidden">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="text-text-secondary hover:text-text-primary"
-              aria-label="Toggle menu"
-            >
-              {isOpen ? <X size={26} /> : <Menu size={26} />}
-            </button>
-          </div>
-
-           <div className="flex gap-2">
-            {isLoggedIn ? (
-              <button onClick={handleLogout} className="secondary-btn">
-                Logout
-              </button>
-            ) : (
-              <>
-                <Link href="/signup">
-                  <button className="primary-btn">Try For Free</button>
-                </Link>
-                <Link href="/signin">
-                  <button className="secondary-btn">Login</button>
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Mobile Navigation */}
-        {isOpen && (
-          <div className="md:hidden border-t border-border">
-            <div className="py-4 space-y-2">
+          {isLoggedIn ? (
+            <div className="hidden md:flex items-center gap-2">
               {links.map((link) => {
                 const Icon = link.icon;
                 return (
                   <button
                     key={link.href}
                     onClick={() => handleNavigation(link.href)}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg
                                text-text-secondary hover:text-text-primary
                                hover:bg-background-muted transition"
                   >
@@ -122,8 +65,67 @@ const Navbar = ({ role }: NavbarProps) => {
                 );
               })}
             </div>
+          ) : (
+            <div className="flex gap-2">
+              <Link href="/signup">
+                <button className="primary-btn">Try For Free</button>
+              </Link>
+              <Link href="/signin">
+                <button className="secondary-btn">Login</button>
+              </Link>
+            </div>
+          )}
+
+          <div className="md:hidden">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="text-text-secondary hover:text-text-primary"
+              aria-label="Toggle menu"
+            >
+              {isOpen ? <X size={26} /> : <Menu size={26} />}
+            </button>
           </div>
-        )}    
+        </div>
+
+        {isOpen && (
+          <div className="md:hidden border-t border-border">
+            <div className="py-4 space-y-2">
+
+              {isLoggedIn &&
+                links.map((link) => {
+                  const Icon = link.icon;
+                  return (
+                    <button
+                      key={link.href}
+                      onClick={() => handleNavigation(link.href)}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg
+                                 text-text-secondary hover:text-text-primary
+                                 hover:bg-background-muted transition"
+                    >
+                      <Icon size={18} />
+                      {link.label}
+                    </button>
+                  );
+                })}
+
+              {!isLoggedIn && (
+                <div className="flex flex-col gap-2 px-4">
+                  <Link href="/signup">
+                    <button className="primary-btn w-full">
+                      Try For Free
+                    </button>
+                  </Link>
+                  <Link href="/signin">
+                    <button className="secondary-btn w-full">
+                      Login
+                    </button>
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        
       </div>
     </nav>
   );
