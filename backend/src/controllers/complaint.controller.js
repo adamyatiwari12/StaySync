@@ -4,9 +4,9 @@ const User = require("../models/User");
 const getAllComplaints = async (req, res) => {
   try {
     const complaints = await Complaint.find({
-      code: req.user.code
+      stayId: req.user.stayId
     })
-      .populate("tenantId", "name email")
+      .populate("tenantId", "username email")
       .populate("roomId", "roomNumber floor")
       .sort({ createdAt: -1 });
 
@@ -27,7 +27,7 @@ const updateComplaintStatus = async (req, res) => {
 
     const complaint = await Complaint.findOne({
       _id: id,
-      code: req.user.code
+      stayId: req.user.stayId
     });
 
     if (!complaint) {
@@ -56,7 +56,7 @@ const createComplaint = async (req, res) => {
 
     const tenant = await User.findOne({
       _id: req.user.userId,
-      code: req.user.code
+      stayId: req.user.stayId
     });
 
     if (!tenant || tenant.role !== "tenant") {
@@ -70,11 +70,11 @@ const createComplaint = async (req, res) => {
     }
 
     const complaint = await Complaint.create({
+      stayId: req.user.stayId,
       tenantId: tenant._id,
       roomId: tenant.roomId,
       category,
-      description,
-      code: req.user.code
+      description
     });
 
     res.status(201).json(complaint);
@@ -87,7 +87,7 @@ const getMyComplaints = async (req, res) => {
   try {
     const complaints = await Complaint.find({
       tenantId: req.user.userId,
-      code: req.user.code
+      stayId: req.user.stayId
     })
       .populate("roomId", "roomNumber floor")
       .sort({ createdAt: -1 });
