@@ -11,7 +11,7 @@ const bootstrapRoutes = require("./routes/bootstrap.routes");
 const app = express();
 
 app.use(cors({
-  origin: ["http://localhost:3000"],
+  origin: ["http://localhost:3000", "https://stay-sync-phi.vercel.app"],
   credentials: true
 }));
 app.use(express.json());
