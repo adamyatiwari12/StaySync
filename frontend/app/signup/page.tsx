@@ -21,7 +21,7 @@ const SignupPage: FC = () => {
     username: "",
     email: "",
     password: "",
-    code: "697851963138d44d07fa81f1",
+    code: "DEL01",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
