@@ -4,8 +4,11 @@ const getTenants = async (req, res) => {
   try {
     const tenants = await User.find({
       stayId: req.user.stayId,
-      role: "tenant"
-    }).select("-password").populate("roomId");
+      role: "tenant",
+      roomId: { $ne: null }
+    })
+      .select("-password")
+      .populate("roomId");
 
     res.status(200).json(tenants);
   } catch (error) {
@@ -47,7 +50,9 @@ const updateProfile = async (req, res) => {
 
 const getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId || req.user._id).select("-password");
+    const user = await User.findById(req.user.userId || req.user._id)
+      .select("-password")
+      .populate("roomId", "roomNumber floor rentAmount capacity");
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });

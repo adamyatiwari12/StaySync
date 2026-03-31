@@ -1,10 +1,18 @@
+export interface RoomInfo {
+    _id: string;
+    roomNumber: string;
+    floor?: number;
+    rentAmount?: number;
+    capacity?: number;
+}
+
 export interface Tenant {
     _id: string;
     username: string;
     email: string;
     name?: string;
     phone?: string;
-    roomId?: string | null;
+    roomId?: string | RoomInfo | null;
     role: "tenant" | "admin";
 }
 

@@ -2,27 +2,28 @@
 
 import ProtectedRoute from "@/components/home/ProtectedRoute";
 import { useState, useEffect } from "react";
-import { Home, CreditCard, AlertCircle } from "lucide-react";
+import { Home, CreditCard, AlertCircle, LucideIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { AuthUser } from "@/types/auth";
 import Navbar from "@/components/layout/Navbar";
+import { getProfile } from "@/services/user.services";
+import { RoomInfo, Tenant } from "@/types/user";
 
-export default function TenantDashboard() {
-  const router = useRouter();
-  const [user, setUser] = useState<AuthUser | null>(null);
+interface QuickActionCardProps {
+  title: string;
+  icon: LucideIcon;
+  onClick: () => void;
+  color: string;
+  description: string;
+}
 
-  useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (userData) setUser(JSON.parse(userData));
-  }, []);
-
-  const QuickActionCard = ({
-    title,
-    icon: Icon,
-    onClick,
-    color,
-    description,
-  }: any) => (
+function QuickActionCard({
+  title,
+  icon: Icon,
+  onClick,
+  color,
+  description,
+}: QuickActionCardProps) {
+  return (
     <button
       onClick={onClick}
       className="flex flex-col items-center justify-center p-6 bg-background-card rounded-xl border border-border hover:border-primary/50 hover:shadow-lg transition-all group w-full text-center"
@@ -38,6 +39,49 @@ export default function TenantDashboard() {
       <p className="text-sm text-text-secondary">{description}</p>
     </button>
   );
+}
+
+export default function TenantDashboard() {
+  const router = useRouter();
+  const [user, setUser] = useState<Tenant | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await getProfile();
+        setUser(res.data);
+      } catch {
+        const userData = localStorage.getItem("user");
+        if (userData) setUser(JSON.parse(userData));
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  const room =
+    user?.roomId && typeof user.roomId === "object"
+      ? (user.roomId as RoomInfo)
+      : null;
+
+  const formatRent = (rent?: number) =>
+    typeof rent === "number" ? `₹${rent.toLocaleString("en-IN")}` : "N/A";
+
+  const formatFloor = (floor?: number) => {
+    if (typeof floor !== "number") return "N/A";
+
+    const suffix =
+      floor === 1 ? "st" : floor === 2 ? "nd" : floor === 3 ? "rd" : "th";
+
+    return `${floor}${suffix} Floor`;
+  };
+
+  const formatRoomType = (capacity?: number) => {
+    if (typeof capacity !== "number") return "N/A";
+    return capacity === 1
+      ? "Private (Single Sharing)"
+      : `Shared (${capacity} Sharing)`;
+  };
 
   return (
     <ProtectedRoute allowedRoles={["tenant"]}>
@@ -45,7 +89,6 @@ export default function TenantDashboard() {
         <Navbar role="tenant" />
 
         <main className="max-w-7xl mx-auto px-4 py-8">
-          {/* Welcome */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-text-primary">
               Hello, {user?.username || "Tenant"}!
@@ -56,28 +99,25 @@ export default function TenantDashboard() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* LEFT */}
             <div className="lg:col-span-2 space-y-8">
-              {/* My Room */}
               <div className="bg-background-card rounded-2xl p-6 border border-border">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
                     <Home className="text-primary" /> My Room
                   </h2>
                   <span className="px-3 py-1 bg-success/10 text-success rounded-full text-sm font-medium">
-                    Active
+                    {room ? "Active" : "Unassigned"}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Info label="Room Number" value="101" />
-                  <Info label="Monthly Rent" value="₹5,000" />
-                  <Info label="Floor" value="1st Floor" />
-                  <Info label="Room Type" value="Shared (2 Sharing)" />
+                  <Info label="Room Number" value={room?.roomNumber || "Not assigned"} />
+                  <Info label="Monthly Rent" value={formatRent(room?.rentAmount)} />
+                  <Info label="Floor" value={formatFloor(room?.floor)} />
+                  <Info label="Room Type" value={formatRoomType(room?.capacity)} />
                 </div>
               </div>
 
-              {/* Rent Alert */}
               <div className="bg-warning/10 border border-warning/30 rounded-2xl p-6 flex gap-4">
                 <AlertCircle className="text-warning mt-1" size={24} />
                 <div>
@@ -85,8 +125,7 @@ export default function TenantDashboard() {
                     Rent Due Soon
                   </h3>
                   <p className="text-warning/80 mt-1">
-                    Your rent is due on{" "}
-                    <strong>25th Jan, 2026</strong>. Please pay on time.
+                    Please review your monthly payment details and pay on time.
                   </p>
                   <button
                     onClick={() => router.push("/tenant/payments")}
@@ -98,7 +137,6 @@ export default function TenantDashboard() {
               </div>
             </div>
 
-            {/* RIGHT */}
             <div className="space-y-6">
               <h2 className="text-xl font-bold text-text-primary">
                 Quick Actions
