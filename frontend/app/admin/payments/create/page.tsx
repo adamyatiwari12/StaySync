@@ -13,6 +13,9 @@ interface Tenant {
   roomId?: {
     _id: string;
     roomNumber: string;
+    rentAmount?: number;
+    occupiedCount?: number;
+    capacity?: number;
   };
 }
 
@@ -30,7 +33,11 @@ export default function CreatePaymentPage() {
   useEffect(() => {
     const fetchTenants = async () => {
       const res = await API.get("/users/tenants");
-      setTenants(res.data);
+      setTenants(
+        res.data.filter(
+          (tenant: Tenant) => tenant.roomId && typeof tenant.roomId === "object"
+        )
+      );
     };
     fetchTenants();
   }, []);
@@ -38,7 +45,17 @@ export default function CreatePaymentPage() {
   const handleTenantChange = (id: string) => {
     setTenantId(id);
     const tenant = tenants.find((t) => t._id === id);
-    setRoomId(tenant?.roomId?._id || "");
+    const room = tenant?.roomId;
+
+    setRoomId(room?._id || "");
+
+    if (room?.rentAmount) {
+      const divisor = room.capacity && room.capacity > 0 ? room.capacity : 1;
+      const calculatedAmount = Math.ceil(room.rentAmount / divisor);
+      setAmount(String(calculatedAmount));
+    } else {
+      setAmount("");
+    }
   };
 
   const handleSubmit = async () => {
@@ -59,10 +76,18 @@ export default function CreatePaymentPage() {
       alert("Payment created successfully");
       setAmount("");
       router.push("/admin/payments");
-    } catch (error: any) {
-      alert(
-        error?.response?.data?.message || "Failed to create payment"
-      );
+    } catch (error: unknown) {
+      const message =
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        typeof (error as { response?: { data?: { message?: string } } }).response
+          ?.data?.message === "string"
+          ? (error as { response?: { data?: { message?: string } } }).response!
+              .data!.message!
+          : "Failed to create payment";
+
+      alert(message);
     } finally {
       setLoading(false);
     }
@@ -120,6 +145,7 @@ export default function CreatePaymentPage() {
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
+                placeholder="Auto-calculated per tenant"
                 className="w-full bg-background border border-border rounded-md px-3 py-2 text-text-primary"
               />
             </div>
