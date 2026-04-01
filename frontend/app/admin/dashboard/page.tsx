@@ -249,7 +249,16 @@ export default function AdminDashboard() {
                   </div>
                 </button>
 
-                
+                <button
+                  onClick={() => router.push("/admin/complaints")}
+                  className="flex items-center justify-center gap-3 p-6 bg-warning/10 hover:bg-warning/20 border border-warning/20 hover:border-warning/40 rounded-xl transition group"
+                >
+                  <Activity size={24} className="text-warning" />
+                  <div className="text-left">
+                    <h3 className="font-semibold text-warning">View Issues</h3>
+                    <p className="text-sm text-warning/80">Check complaints</p>
+                  </div>
+                </button>
               </div>
 
             </>
