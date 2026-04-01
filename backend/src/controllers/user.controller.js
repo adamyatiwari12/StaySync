@@ -4,8 +4,7 @@ const getTenants = async (req, res) => {
   try {
     const tenants = await User.find({
       stayId: req.user.stayId,
-      role: "tenant",
-      roomId: { $ne: null }
+      role: "tenant"
     })
       .select("-password")
       .populate("roomId");
