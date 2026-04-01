@@ -13,7 +13,6 @@ import Testimonial from "@/components/home/Testimonials";
 
 const HomePage = () => {
   useEffect(() => {
-    // Logout user when visiting home page
     localStorage.removeItem("token");
     localStorage.removeItem("user");
   }, []);

@@ -9,11 +9,9 @@ import {
   User,
   Mail,
   Shield,
-  Camera,
   Loader2,
   Save,
   LogOut,
-  Lock,
   Smartphone,
   ChevronRight,
 } from "lucide-react";
@@ -34,7 +32,7 @@ interface ProfileProps {
 
 type TabType = "general" | "security";
 
-export default function Profile({role}: ProfileProps) {
+export default function Profile({ role }: ProfileProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>("general");
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -86,7 +84,7 @@ export default function Profile({role}: ProfileProps) {
               email: res.data.user.email,
               phone: res.data.user.phone,
             }
-          : prev
+          : prev,
       );
       setSuccess("Profile updated successfully");
     } catch (err) {
@@ -143,7 +141,6 @@ export default function Profile({role}: ProfileProps) {
   return (
     <ProtectedRoute allowedRoles={[role]}>
       <div>
-
         <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="mb-10">
             <h1 className="text-3xl font-bold font-serif text-text-primary">
@@ -198,8 +195,12 @@ export default function Profile({role}: ProfileProps) {
                           <User size={32} />
                         </div>
                         <div>
-                          <h2 className="text-2xl font-bold text-text-primary">Personal Information</h2>
-                          <p className="text-text-secondary mt-1">Update your account details and contact information.</p>
+                          <h2 className="text-2xl font-bold text-text-primary">
+                            Personal Information
+                          </h2>
+                          <p className="text-text-secondary mt-1">
+                            Update your account details and contact information.
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -207,14 +208,14 @@ export default function Profile({role}: ProfileProps) {
                     <div className="p-8">
                       {error && (
                         <div className="mb-6 p-4 bg-error/10 border border-error/20 rounded-xl flex items-center gap-3 text-error animate-in fade-in slide-in-from-top-2">
-                          <Shield size={20} className="flex-shrink-0" />
+                          <Shield size={20} className="shrink-0" />
                           <p>{error}</p>
                         </div>
                       )}
 
                       {success && (
                         <div className="mb-6 p-4 bg-success/10 border border-success/20 rounded-xl flex items-center gap-3 text-success animate-in fade-in slide-in-from-top-2">
-                          <Save size={20} className="flex-shrink-0" />
+                          <Save size={20} className="shrink-0" />
                           <p>{success}</p>
                         </div>
                       )}
@@ -327,9 +328,7 @@ export default function Profile({role}: ProfileProps) {
               {activeTab === "security" && (
                 <div className="space-y-6">
                   <div className="bg-background-card border border-border rounded-3xl p-8 shadow-sm">
-                    <h2 className="text-xl font-bold">
-                      Security Settings
-                    </h2>
+                    <h2 className="text-xl font-bold">Security Settings</h2>
                     <p className="text-sm text-text-secondary">
                       Manage password and security options.
                     </p>

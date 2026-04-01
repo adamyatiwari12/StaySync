@@ -1,13 +1,18 @@
 import Logo from "@/assets/Logo.png";
 import { Phone, MessageSquare } from "lucide-react";
 import Image from "next/image";
+import { motion } from "framer-motion";
+import { SlideLeft } from "@/components/animation/animate";
 
 const Footer = () => {
   return (
-    <footer>
+    <motion.footer
+      variants={SlideLeft(0.2)}
+      initial="initial"
+      whileInView="animate"
+    >
       <div className="container py-11">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          
           {/* Company Info */}
           <div className="space-y-4 font-semibold">
             <div className="flex items-center space-x-3">
@@ -16,8 +21,8 @@ const Footer = () => {
             </div>
 
             <p>
-              Simplifying stay operations by managing rooms, tenants,
-              and complaints in one unified platform.
+              Simplifying stay operations by managing rooms, tenants, and
+              complaints in one unified platform.
             </p>
           </div>
 
@@ -26,20 +31,36 @@ const Footer = () => {
             <div className="space-y-4">
               <h1 className="text-xl font-semibold">About us</h1>
               <ul className="text-sm space-y-4">
-                <li><a href="#">Our Story</a></li>
-                <li><a href="#">Designer</a></li>
-                <li><a href="#">Craftmanship</a></li>
-                <li><a href="#">Sustainability</a></li>
+                <li>
+                  <a href="#">Our Story</a>
+                </li>
+                <li>
+                  <a href="#">Designer</a>
+                </li>
+                <li>
+                  <a href="#">Craftmanship</a>
+                </li>
+                <li>
+                  <a href="#">Sustainability</a>
+                </li>
               </ul>
             </div>
 
             <div className="space-y-4">
               <h1 className="text-xl font-semibold">Support</h1>
               <ul className="text-sm space-y-4">
-                <li><a href="#">FAQ&apos;s</a></li>
-                <li><a href="#">Shipping & Returns</a></li>
-                <li><a href="#">Care Guide</a></li>
-                <li><a href="#">Guarantee</a></li>
+                <li>
+                  <a href="#">FAQ&apos;s</a>
+                </li>
+                <li>
+                  <a href="#">Shipping & Returns</a>
+                </li>
+                <li>
+                  <a href="#">Care Guide</a>
+                </li>
+                <li>
+                  <a href="#">Guarantee</a>
+                </li>
               </ul>
             </div>
           </div>
@@ -75,7 +96,7 @@ const Footer = () => {
           © {new Date().getFullYear()} StaySync. All rights reserved
         </p>
       </div>
-    </footer>
+    </motion.footer>
   );
 };
 
