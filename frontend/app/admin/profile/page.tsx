@@ -1,5 +1,5 @@
 "use client";
-import Profile from "@/components/home/Profile";
+import Profile from "@/components/profile/Profile";
 import Navbar from "@/components/layout/Navbar";
 
 export default function AdminProfilePage() {

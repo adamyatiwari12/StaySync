@@ -34,12 +34,8 @@ function AssignTenantContent() {
           getTenants()
         ]);
 
-        // Filter for any room that has space (occupied < capacity)
-        // OR the currently selected room (even if full, though unlikely to assign if full)
-        // Actually, we should only show rooms with space.
         setRooms(roomsRes.data.filter(r => r.occupiedCount < r.capacity));
 
-        // Filter for tenants without a room
         setTenants(tenantsRes.data.filter(t => !t.roomId));
       } catch (err) {
         setError("Failed to load data. Please try again.");
@@ -51,7 +47,6 @@ function AssignTenantContent() {
     fetchData();
   }, []);
 
-  // Update roomId if param changes and not already set
   useEffect(() => {
     if (paramRoomId) {
       setRoomId(paramRoomId);
@@ -77,7 +72,6 @@ function AssignTenantContent() {
       await assignTenant({ roomId, tenantId });
       setSuccess("Tenant assigned successfully!");
 
-      // Redirect after short delay
       setTimeout(() => {
         router.push("/admin/rooms");
       }, 1500);
