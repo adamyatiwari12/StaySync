@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
+const { validatePasswordStrength } = require("../utils/passwordValidator");
 
 const getTenants = async (req, res) => {
   try {
@@ -82,11 +83,27 @@ const changePassword = async (req, res) => {
       return res.status(401).json({ message: "Current password is incorrect" });
     }
 
+    // Validate that new password is different from current password
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+    if (isSamePassword) {
+      return res.status(400).json({ message: "New password must be different from current password" });
+    }
+
+    // Validate password strength
+    const validation = validatePasswordStrength(newPassword);
+    if (!validation.isValid) {
+      return res.status(400).json({ 
+        message: "Password does not meet security requirements",
+        errors: validation.errors 
+      });
+    }
+
     user.password = await bcrypt.hash(newPassword, 10);
     await user.save();
 
     res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };

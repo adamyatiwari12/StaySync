@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const Stay = require("../models/Stay");
 const User = require("../models/User");
+const { validatePasswordStrength } = require("../utils/passwordValidator");
 
 const bootstrap = async (req, res) => {
   if (process.env.ENABLE_BOOTSTRAP !== "true") {
@@ -17,6 +18,15 @@ const bootstrap = async (req, res) => {
 
     if (!stayName || !stayCode || !email || !password) {
       return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // Validate password strength
+    const validation = validatePasswordStrength(password);
+    if (!validation.isValid) {
+      return res.status(400).json({ 
+        message: "Password does not meet security requirements",
+        errors: validation.errors 
+      });
     }
 
     const stay = await Stay.create({ name: stayName, code: stayCode });

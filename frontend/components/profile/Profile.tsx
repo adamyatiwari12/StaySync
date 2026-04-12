@@ -7,6 +7,7 @@ import SecuritySettings from "./SecuritySettings";
 import { getProfile, updateProfile, changePassword } from "@/services/user.services";
 import { Tenant, UpdateProfileData } from "@/types/user";
 import { AxiosError } from "axios";
+import { validatePasswordStrength } from "@/lib/passwordValidator";
 import {
   User,
   Mail,
@@ -113,13 +114,20 @@ export default function Profile({ role }: ProfileProps) {
       return;
     }
 
-    if (passwordForm.newPassword.length < 6) {
-      setPasswordError("New password must be at least 6 characters.");
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setPasswordError("New passwords must match.");
       return;
     }
 
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setPasswordError("New passwords must match.");
+    // Validate password strength
+    const validation = validatePasswordStrength(passwordForm.newPassword);
+    if (!validation.isValid) {
+      setPasswordError(validation.errors.join(". ") + ".");
+      return;
+    }
+
+    if (passwordForm.newPassword === passwordForm.currentPassword) {
+      setPasswordError("New password must be different from current password.");
       return;
     }
 
@@ -134,7 +142,11 @@ export default function Profile({ role }: ProfileProps) {
       setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
     } catch (err) {
       if (err instanceof AxiosError) {
-        setPasswordError(err.response?.data?.message || "Password update failed.");
+        if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
+          setPasswordError(err.response.data.errors.join(". ") + ".");
+        } else {
+          setPasswordError(err.response?.data?.message || "Password update failed.");
+        }
       } else {
         setPasswordError("Something went wrong.");
       }

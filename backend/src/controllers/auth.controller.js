@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const User = require("../models/User");
 const Stay = require("../models/Stay");
 const generateToken = require("../utils/generateToken");
+const { validatePasswordStrength } = require("../utils/passwordValidator");
 
 const signUp = async (req, res) => {
   try {
@@ -9,6 +10,15 @@ const signUp = async (req, res) => {
 
     if (!username || !email || !password || !code) {
       return res.status(400).json({ message: "All required fields missing" });
+    }
+
+    // Validate password strength
+    const validation = validatePasswordStrength(password);
+    if (!validation.isValid) {
+      return res.status(400).json({ 
+        message: "Password does not meet security requirements",
+        errors: validation.errors 
+      });
     }
 
     const stay = await Stay.findOne({ code });

@@ -1,7 +1,8 @@
 "use client";
 
-import { FormEvent, ChangeEvent } from "react";
-import { Save, Loader2, Shield } from "lucide-react";
+import { FormEvent, ChangeEvent, useState, useMemo } from "react";
+import { Save, Loader2, Shield, AlertCircle, CheckCircle2 } from "lucide-react";
+import { validatePasswordStrength, getPasswordStrength, getStrengthLabel } from "@/lib/passwordValidator";
 
 interface PasswordForm {
   currentPassword: string;
@@ -26,6 +27,21 @@ export default function SecuritySettings({
   error,
   success,
 }: SecuritySettingsProps) {
+  const [showValidationErrors, setShowValidationErrors] = useState(false);
+
+  // Validate password strength
+  const passwordValidation = useMemo(() => {
+    return validatePasswordStrength(passwordForm.newPassword);
+  }, [passwordForm.newPassword]);
+
+  const passwordStrength = useMemo(() => {
+    return getPasswordStrength(passwordForm.newPassword);
+  }, [passwordForm.newPassword]);
+
+  const strengthLabel = getStrengthLabel(passwordStrength);
+
+  const passwordsMatch = passwordForm.newPassword === passwordForm.confirmPassword && passwordForm.newPassword.length > 0;
+
   return (
     <div className="space-y-6">
       <div className="bg-background-card border border-border rounded-3xl shadow-xl overflow-hidden">
@@ -47,14 +63,16 @@ export default function SecuritySettings({
 
         <div className="p-8 space-y-6">
           {error && (
-            <div className="p-4 bg-error/10 border border-error/20 rounded-xl text-error">
-              {error}
+            <div className="p-4 bg-error/10 border border-error/20 rounded-xl text-error flex gap-2">
+              <AlertCircle size={20} className="flex-shrink-0 mt-0.5" />
+              <div>{error}</div>
             </div>
           )}
 
           {success && (
-            <div className="p-4 bg-success/10 border border-success/20 rounded-xl text-success">
-              {success}
+            <div className="p-4 bg-success/10 border border-success/20 rounded-xl text-success flex gap-2">
+              <CheckCircle2 size={20} className="flex-shrink-0 mt-0.5" />
+              <div>{success}</div>
             </div>
           )}
 
@@ -74,7 +92,7 @@ export default function SecuritySettings({
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <label className="block text-sm font-medium text-text-primary">
                   New Password
                 </label>
@@ -83,12 +101,64 @@ export default function SecuritySettings({
                   name="newPassword"
                   value={passwordForm.newPassword}
                   onChange={onPasswordChange}
+                  onFocus={() => passwordForm.newPassword && setShowValidationErrors(true)}
                   placeholder="Enter new password"
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-background-muted text-text-primary focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                  className={`w-full px-4 py-3 rounded-xl border ${
+                    passwordForm.newPassword && !passwordValidation.isValid
+                      ? "border-error focus:ring-error"
+                      : "border-border focus:ring-primary"
+                  } bg-background-muted text-text-primary focus:ring-2 focus:border-transparent outline-none transition-all`}
                 />
+
+                {/* Password Strength Indicator */}
+                {passwordForm.newPassword && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-text-secondary">Password Strength:</span>
+                      <span className={`text-xs font-semibold ${strengthLabel.color}`}>
+                        {strengthLabel.label}
+                      </span>
+                    </div>
+                    <div className="w-full h-2 bg-background-muted rounded-full overflow-hidden">
+                      <div
+                        className={`h-full transition-all ${
+                          passwordStrength === 1
+                            ? "w-1/5 bg-error"
+                            : passwordStrength === 2
+                            ? "w-2/5 bg-orange-500"
+                            : passwordStrength === 3
+                            ? "w-3/5 bg-yellow-500"
+                            : passwordStrength === 4
+                            ? "w-4/5 bg-lime-500"
+                            : "w-full bg-green-500"
+                        }`}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Validation Errors */}
+                {passwordForm.newPassword && showValidationErrors && passwordValidation.errors.length > 0 && (
+                  <div className="space-y-2 mt-3">
+                    {passwordValidation.errors.map((error, idx) => (
+                      <div key={idx} className="flex items-start gap-2 text-sm text-error">
+                        <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
+                        <span>{error}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Valid Password Indicator */}
+                {passwordForm.newPassword && passwordValidation.isValid && (
+                  <div className="flex items-center gap-2 text-sm text-green-600">
+                    <CheckCircle2 size={16} />
+                    <span>Password meets all requirements</span>
+                  </div>
+                )}
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <label className="block text-sm font-medium text-text-primary">
                   Confirm New Password
                 </label>
@@ -98,15 +168,31 @@ export default function SecuritySettings({
                   value={passwordForm.confirmPassword}
                   onChange={onPasswordChange}
                   placeholder="Confirm new password"
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-background-muted text-text-primary focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                  className={`w-full px-4 py-3 rounded-xl border ${
+                    passwordForm.confirmPassword && !passwordsMatch
+                      ? "border-error focus:ring-error"
+                      : "border-border focus:ring-primary"
+                  } bg-background-muted text-text-primary focus:ring-2 focus:border-transparent outline-none transition-all`}
                 />
+                {passwordForm.confirmPassword && passwordsMatch && (
+                  <div className="flex items-center gap-2 text-sm text-green-600">
+                    <CheckCircle2 size={16} />
+                    <span>Passwords match</span>
+                  </div>
+                )}
+                {passwordForm.confirmPassword && !passwordsMatch && (
+                  <div className="flex items-center gap-2 text-sm text-error">
+                    <AlertCircle size={16} />
+                    <span>Passwords do not match</span>
+                  </div>
+                )}
               </div>
             </div>
 
             <div className="flex justify-end pt-4">
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !passwordValidation.isValid || !passwordsMatch || !passwordForm.currentPassword}
                 className="flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-text-primary rounded-xl font-bold transition-all shadow-lg hover:shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (

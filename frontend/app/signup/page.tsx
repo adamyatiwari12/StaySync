@@ -7,6 +7,7 @@ import Link from "next/link";
 import { SignupData } from "@/types/auth";
 import { Mail, Lock, User, Eye, EyeOff } from "lucide-react";
 import { getErrorMessage } from "@/lib/getErrorMessage";
+import { validatePasswordStrength } from "@/lib/passwordValidator";
 
 interface FormErrors {
   username?: string;
@@ -43,8 +44,11 @@ const SignupPage: FC = () => {
 
     if (!form.password) {
       newErrors.password = "Password is required";
-    } else if (form.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+    } else {
+      const validation = validatePasswordStrength(form.password);
+      if (!validation.isValid) {
+        newErrors.password = validation.errors.join(". ") + ".";
+      }
     }
 
     setErrors(newErrors);

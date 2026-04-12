@@ -57,8 +57,8 @@ const SigninPage: FC = () => {
 
   const handleDemoLogin = (role: "admin" | "tenant") => {
     const demoData = role === "admin" 
-      ? { email: "admin@gmail.com", password: "admin123", code: "DEL01" }
-      : { email: "tenant@gmail.com", password: "tenant123", code: "DEL01" };
+      ? { email: "admin@gmail.com", password: "Admin@123", code: "DEL01" }
+      : { email: "tenant@gmail.com", password: "Tenant@123", code: "DEL01" };
     
     setForm(demoData);
     setErrors({});
