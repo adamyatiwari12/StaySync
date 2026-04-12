@@ -5,9 +5,9 @@ import { signup } from "@/services/auth.services";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { SignupData } from "@/types/auth";
-import { Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, AlertCircle, CheckCircle2 } from "lucide-react";
 import { getErrorMessage } from "@/lib/getErrorMessage";
-import { validatePasswordStrength } from "@/lib/passwordValidator";
+import { validatePasswordStrength, getPasswordStrength, getStrengthLabel } from "@/lib/passwordValidator";
 
 interface FormErrors {
   username?: string;
@@ -176,8 +176,10 @@ const SignupPage: FC = () => {
                   value={form.password}
                   onChange={handleChange}
                   className={`w-full pl-10 pr-12 py-2 rounded-lg border ${
-                    errors.password ? "border-error" : "border-border"
-                  } bg-background-muted`}
+                    form.password && !validatePasswordStrength(form.password).isValid
+                      ? "border-error focus:ring-error"
+                      : "border-border focus:ring-primary"
+                  } bg-background-muted focus:ring-2 focus:border-transparent outline-none transition-all`}
                 />
                 <button
                   type="button"
@@ -187,8 +189,54 @@ const SignupPage: FC = () => {
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
+
+              {form.password && (
+                <div className="space-y-3 mt-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-text-secondary">Password Strength:</span>
+                    <span className={`text-xs font-semibold ${getStrengthLabel(getPasswordStrength(form.password)).color}`}>
+                      {getStrengthLabel(getPasswordStrength(form.password)).label}
+                    </span>
+                  </div>
+                  <div className="w-full h-2 bg-background-muted rounded-full overflow-hidden">
+                    <div
+                      className={`h-full transition-all ${
+                        getPasswordStrength(form.password) === 1
+                          ? "w-1/5 bg-error"
+                          : getPasswordStrength(form.password) === 2
+                          ? "w-2/5 bg-orange-500"
+                          : getPasswordStrength(form.password) === 3
+                          ? "w-3/5 bg-yellow-500"
+                          : getPasswordStrength(form.password) === 4
+                          ? "w-4/5 bg-lime-500"
+                          : "w-full bg-green-500"
+                      }`}
+                    />
+                  </div>
+
+                  {validatePasswordStrength(form.password).errors.length > 0 && (
+                    <div className="space-y-2 mt-3">
+                      {validatePasswordStrength(form.password).errors.map((error, idx) => (
+                        <div key={idx} className="flex items-start gap-2 text-xs text-error">
+                          <AlertCircle size={14} className="flex-shrink-0 mt-0.5" />
+                          <span>{error}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Valid Password Indicator */}
+                  {validatePasswordStrength(form.password).isValid && (
+                    <div className="flex items-center gap-2 text-xs text-green-600">
+                      <CheckCircle2 size={14} />
+                      <span>Password meets all requirements</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {errors.password && (
-                <p className="mt-1 text-sm text-error">
+                <p className="mt-2 text-sm text-error">
                   {errors.password}
                 </p>
               )}

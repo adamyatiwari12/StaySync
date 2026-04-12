@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, ChangeEvent, useState, useMemo } from "react";
+import { FormEvent, ChangeEvent, useMemo } from "react";
 import { Save, Loader2, Shield, AlertCircle, CheckCircle2 } from "lucide-react";
 import { validatePasswordStrength, getPasswordStrength, getStrengthLabel } from "@/lib/passwordValidator";
 
@@ -27,9 +27,6 @@ export default function SecuritySettings({
   error,
   success,
 }: SecuritySettingsProps) {
-  const [showValidationErrors, setShowValidationErrors] = useState(false);
-
-  // Validate password strength
   const passwordValidation = useMemo(() => {
     return validatePasswordStrength(passwordForm.newPassword);
   }, [passwordForm.newPassword]);
@@ -41,6 +38,9 @@ export default function SecuritySettings({
   const strengthLabel = getStrengthLabel(passwordStrength);
 
   const passwordsMatch = passwordForm.newPassword === passwordForm.confirmPassword && passwordForm.newPassword.length > 0;
+  
+  // Show validation errors immediately when user has typed something
+  const showValidationErrors = passwordForm.newPassword.length > 0;
 
   return (
     <div className="space-y-6">
@@ -101,7 +101,6 @@ export default function SecuritySettings({
                   name="newPassword"
                   value={passwordForm.newPassword}
                   onChange={onPasswordChange}
-                  onFocus={() => passwordForm.newPassword && setShowValidationErrors(true)}
                   placeholder="Enter new password"
                   className={`w-full px-4 py-3 rounded-xl border ${
                     passwordForm.newPassword && !passwordValidation.isValid
@@ -110,7 +109,6 @@ export default function SecuritySettings({
                   } bg-background-muted text-text-primary focus:ring-2 focus:border-transparent outline-none transition-all`}
                 />
 
-                {/* Password Strength Indicator */}
                 {passwordForm.newPassword && (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
@@ -137,7 +135,6 @@ export default function SecuritySettings({
                   </div>
                 )}
 
-                {/* Validation Errors */}
                 {passwordForm.newPassword && showValidationErrors && passwordValidation.errors.length > 0 && (
                   <div className="space-y-2 mt-3">
                     {passwordValidation.errors.map((error, idx) => (
@@ -149,7 +146,6 @@ export default function SecuritySettings({
                   </div>
                 )}
 
-                {/* Valid Password Indicator */}
                 {passwordForm.newPassword && passwordValidation.isValid && (
                   <div className="flex items-center gap-2 text-sm text-green-600">
                     <CheckCircle2 size={16} />

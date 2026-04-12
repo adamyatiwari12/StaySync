@@ -1,12 +1,3 @@
-/**
- * Validates password strength
- * Requirements:
- * - Minimum 8 characters
- * - At least one uppercase letter
- * - At least one lowercase letter
- * - At least one number
- * - At least one special character
- */
 export const validatePasswordStrength = (password: string) => {
   const errors: string[] = [];
 
@@ -36,9 +27,6 @@ export const validatePasswordStrength = (password: string) => {
   };
 };
 
-/**
- * Get password strength score (0-5)
- */
 export const getPasswordStrength = (password: string) => {
   let strength = 0;
 
