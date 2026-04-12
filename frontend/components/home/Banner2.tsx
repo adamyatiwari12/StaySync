@@ -1,12 +1,32 @@
+"use client";
+
 import Banner1 from "@/assets/banner2.png";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { SlideUp } from "@/components/animation/animate";
+import { useEffect, useState } from "react";
 
 const MotionImage = motion.create(Image);
 
 const Banner2 = () => {
+  const [dashboardLink, setDashboardLink] = useState("/signin");
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+    if (token && user) {
+      const parsedUser = JSON.parse(user);
+      if (parsedUser.role === "admin") {
+        setDashboardLink("/admin/dashboard");
+      } else if (parsedUser.role === "tenant") {
+        setDashboardLink("/tenant/dashboard");
+      }
+    } else {
+      setDashboardLink("/signin");
+    }
+  }, []);
+
   return (
     <div className="container py-14">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -58,7 +78,7 @@ const Banner2 = () => {
           </motion.div>
 
           <div>
-            <Link href="/signin">
+            <Link href={dashboardLink}>
               <motion.button
                 variants={SlideUp(0.8)}
                 initial="initial"
